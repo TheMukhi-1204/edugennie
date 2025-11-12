@@ -56,7 +56,6 @@ export const refreshToken = async (req, res) => {
   }
 };
 
-
 // EMAIL
 
 const sendOtpEmail = async (email, otp) => {
@@ -168,38 +167,37 @@ export const verifyOtp = async (req, res) => {
     if (!storedOtp || storedOtp.toString() !== otp.toString()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
-if (type === "signup") {
-  const tempUserData = await redis.get(`tempUser:${email}`);
-  if (!tempUserData)
-    return res.status(400).json({ message: "Session expired" });
+    if (type === "signup") {
+      const tempUserData = await redis.get(`tempUser:${email}`);
+      if (!tempUserData)
+        return res.status(400).json({ message: "Session expired" });
 
-  const userData = JSON.parse(tempUserData); // parse string from Redis
+      const userData = tempUserData;
 
-  // Create the user
-  const newUser = new User(userData); // create a Mongoose document
-  const { accessToken, refreshToken } = generateTokens(newUser);
+      // Create the user
+      const newUser = new User(userData); // create a Mongoose document
+      const { accessToken, refreshToken } = generateTokens(newUser);
 
-  // Save the refresh token to user
-  newUser.refreshTokens = [refreshToken];
-  await newUser.save(); 
+      // Save the refresh token to user
+      newUser.refreshTokens = [refreshToken];
+      await newUser.save();
 
-  // Cleanup Redis
-  await redis.del(`otp:${email}`);
-  await redis.del(`tempUser:${email}`);
+      // Cleanup Redis
+      await redis.del(`otp:${email}`);
+      await redis.del(`tempUser:${email}`);
 
-  return res.status(200).json({
-    message: "Signup successful",
-    user: {
-      id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      year: newUser.year,
-    },
-    accessToken,
-    refreshToken,
-  });
-}
-
+      return res.status(200).json({
+        message: "Signup successful",
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          year: newUser.year,
+        },
+        accessToken,
+        refreshToken,
+      });
+    }
 
     if (type === "reset") {
       const tempUserData = await redis.get(`tempUser:${email}`);
