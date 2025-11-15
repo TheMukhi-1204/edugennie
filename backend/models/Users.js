@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     refreshTokens: {
       type: [String],
       default: [],
-      validate: [(arr) => arr.length <= 5, "Too many active sessions"],
+      // validate: [(arr) => arr.length <= 5, "Too many active sessions"],
     },
   },
   { timestamps: true }
