@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import API from "../api/axios";
 import { CreateEvent } from "./index.components";
 
-function Calendar({ refresh }) {
+function Calendar({ refresh, className = "", showUpcoming = true, showHeader = true }) {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,16 +53,20 @@ function Calendar({ refresh }) {
   };
 
   return (
-    <div className="min-h-screen p-2 bg-bg text-white ">
+    // Keep the calendar component presentation-agnostic so parent containers control
+    // background, padding and sizing. Callers can pass a `className` to size it.
+    <div className={`${className} text-white`}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
-          {today.toLocaleString("default", { month: "long" })} {currentYear}
-        </h2>
-      </div>
+      {showHeader && (
+        <div className="flex justify-center items-center mb-4">
+          <h2 className="text-xl font-semibold text-white">
+            {today.toLocaleString("default", { month: "long" })} {currentYear}
+          </h2>
+        </div>
+      )}
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1 text-center text-gray-300 mb-8">
+      <div className="grid grid-cols-7 gap-2 text-center text-gray-300 mb-6 px-1">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d} className="font-semibold text-[12px]">{d}</div>
         ))}
@@ -85,37 +89,39 @@ function Calendar({ refresh }) {
             <div
               key={day}
               onClick={() => !isPast && handleDateClick(day)}
-              className={`relative cursor-pointer text-sm p-2 rounded-full transition-all
+              className={`relative cursor-pointer text-sm py-2 px-1 w-8 h-8 inline-flex items-center justify-center rounded-full transition-all
                 ${isPast ? "text-gray-500 bg-bg-2 cursor-not-allowed"
                 : isToday ? "bg-accent text-white font-bold"
                 : hasEvent ? "bg-bg-2 text-white hover:bg-accent/60"
                 : "bg-bg-2 hover:bg-accent/60"}
               `}
             >
-              {day}
+              <span className="text-sm">{day}</span>
               {/* Dot for event days */}
               {hasEvent && (
-                <span className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full"></span>
+                <span className="absolute bottom-[4px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-accent rounded-full"></span>
               )}
             </div>
           );
         })}
       </div>
 
-      {/* Upcoming Events */}
-      <div className="rounded-lg p-4 bg-bg-2">
-        <h3 className="text-xl font-semibold mb-4">Upcoming Events</h3>
-        <ul className="flex flex-col gap-5 w-full">
-          {events.map((task, index) => (
-            <li
-              key={index}
-              className="h-16 text-left p-2.5 rounded-lg bg-accent font-semibold text-lg"
-            >
-              {task.title}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Upcoming Events (optional) */}
+      {showUpcoming && (
+        <div className="rounded-lg p-4 bg-bg-2">
+          <h3 className="text-xl font-semibold mb-4">Upcoming Events</h3>
+          <ul className="flex flex-col gap-5 w-full">
+            {events.map((task, index) => (
+              <li
+                key={index}
+                className="h-16 text-left p-2.5 rounded-lg bg-accent font-semibold text-lg"
+              >
+                {task.title}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Create Event Modal (only opens when a date is clicked) */}
       {isModalOpen && selectedDate && (

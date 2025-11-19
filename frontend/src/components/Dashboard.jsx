@@ -37,7 +37,7 @@ function Dashboard() {
 
         <h2 className="text-white text-2xl font-semibold mb-6">Extras</h2>
 
-        <div className="bg-gray-200 w-64 h-64 rounded-lg"></div>
+        <div className="bg-bg-2 w-64 h-64 rounded-lg"></div>
       </div>
     </div>
   );

@@ -7,4 +7,5 @@ import HeaderBar from "./HeaderBar";
 import Dashboard from "./Dashboard";
 import Calendar from "./Calendar";
 import CreateEvent from "./event/CreateEvent";
-export { Signup, Login, Verify, ForgotPass, Navbar, HeaderBar, Dashboard,Calendar,CreateEvent };
+import EventsPage from "./EventsPage";
+export { Signup, Login, Verify, ForgotPass, Navbar, HeaderBar, Dashboard, Calendar, CreateEvent, EventsPage };
