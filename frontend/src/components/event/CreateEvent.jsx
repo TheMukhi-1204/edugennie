@@ -1,8 +1,9 @@
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import API from "../../api/axios";
+import { createEvent as apiCreateEvent, updateEvent as apiUpdateEvent } from "../../api/tasks";
 
-function CreateEvent({open, date, onClose }) {
+function CreateEvent({ open, date, onClose, initialEvent = null }) {
   const [formData, setFormData] = useState({
     title: "",
     event: "",
@@ -10,6 +11,24 @@ function CreateEvent({open, date, onClose }) {
   });
   const [events, setEvents] = useState([]);
   const [isOpen, setIsOpen] = useState(open);
+
+  // keep internal open state in sync with prop
+  useEffect(() => {
+    setIsOpen(!!open);
+  }, [open]);
+
+  // when initialEvent changes (edit mode), prefill form
+  useEffect(() => {
+    if (initialEvent) {
+      setFormData({
+        title: initialEvent.title || "",
+        event: initialEvent.event || initialEvent.description || "",
+        date: initialEvent.date ? new Date(initialEvent.date).toISOString().split("T")[0] : (date ? new Date(date).toISOString().split("T")[0] : ""),
+      });
+    } else if (date) {
+      setFormData((prev) => ({ ...prev, date: new Date(date).toISOString().split("T")[0] }));
+    }
+  }, [initialEvent, date]);
 
   // Fetch events for this specific date
   const fetchEventsForDate = async () => {
@@ -47,10 +66,24 @@ function CreateEvent({open, date, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/event/createEvent", formData);
+      if (initialEvent && initialEvent._id) {
+        // update flow
+        await apiUpdateEvent(initialEvent._id, {
+          title: formData.title,
+          event: formData.event,
+          date: formData.date,
+        });
+      } else {
+        // create flow
+        await apiCreateEvent({
+          title: formData.title,
+          event: formData.event,
+          date: formData.date,
+        });
+      }
       await fetchEventsForDate(); // refresh local event list
       setFormData({ title: "", event: "", date: formData.date });
-      onClose?.(true); // optional refresh trigger
+      onClose?.(true); // notify parent to refresh events
     } catch (error) {
       console.error("Event Creation Error:", error.response?.data || error.message);
     }
@@ -58,7 +91,8 @@ function CreateEvent({open, date, onClose }) {
 
   const handleClose = () => {
     setIsOpen(false);
-    setTimeout(() => onClose?.(), 200); // small fade delay
+    // keep small delay for UI effect, then notify parent
+    setTimeout(() => onClose?.(), 200);
   };
 
   if (!isOpen) return null;
@@ -76,7 +110,7 @@ function CreateEvent({open, date, onClose }) {
 
         {/* Header */}
         <h2 className="text-white text-2xl font-semibold mb-6 text-center">
-          Create Event for {new Date(formData.date).toDateString()}
+          {initialEvent ? `Update Event for ${new Date(formData.date).toDateString()}` : `Create Event for ${new Date(formData.date).toDateString()}`}
         </h2>
 
         {/* Existing Events */}
@@ -148,7 +182,7 @@ function CreateEvent({open, date, onClose }) {
             type="submit"
             className="w-full bg-accent hover:bg-accent-1 text-white font-semibold py-3 rounded-lg transition-colors mt-2"
           >
-            Submit
+            {initialEvent ? "Update Event" : "Submit"}
           </button>
         </form>
       </div>
