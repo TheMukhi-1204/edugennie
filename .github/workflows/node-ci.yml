@@ -67,3 +67,16 @@ jobs:
           service_id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
           api_key: ${{ secrets.RENDER_API_KEY }}
           wait_deploy: true
+
+  deploy-frontend:
+    name: Deploy frontend to Render
+    needs: [frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy frontend (Render static site)
+        uses: JorgeLNJunior/render-deploy@v1.4.6
+        with:
+          service_id: ${{ secrets.RENDER_FRONTEND_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          wait_deploy: true
