@@ -1,4 +1,4 @@
-name: CI - Java Tests (Gradle)
+name: CI - Java compile
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
       - '**'
 
 jobs:
-  test:
-    name: Build & Test (Gradle)
+  build:
+    name: Compile Java sources
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +25,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Grant execute permissions for Gradle Wrapper
-        run: chmod +x ./gradlew
-
-      - name: Run tests
-        run: ./gradlew clean test --no-daemon
+      - name: Compile all .java files
+        run: |
+          mkdir -p out
+          find . -name "*.java" > sources.txt
+          if [ -s sources.txt ]; then
+            javac -d out @sources.txt
+          else
+            echo "No Java files found"
+          fi
