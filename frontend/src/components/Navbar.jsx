@@ -41,7 +41,7 @@ function Navbar() {
           EduGenie
         </h2>
 
-        <ul className="text-xl flex  flex-col h-4/12 font-semibold justify-evenly">
+        <ul className="text-xl flex  flex-col h-8/12 font-semibold justify-center gap-20">
           {navItems.map((item) => (
             <li
               key={item.name}
@@ -55,10 +55,7 @@ function Navbar() {
             </li>
           ))}
         </ul>
-        <span className="w-42  relative top-40 h-4/12">
-          <CircleUser size={96} color="white" className="m-auto" />
-          <p className="text-center text-xl font-semibold">Contact US</p>{" "}
-        </span>
+    
       </div>
     </div>
   );
