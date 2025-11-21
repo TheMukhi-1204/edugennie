@@ -1,7 +1,7 @@
 # 🏫 EduGenie
 
 EduGenie is a full-stack web application designed to simplify campus operations and enhance student engagement.  
-This project includes both the **backend (Node.js + Express)** and **frontend (React + Vite)** in a single repository..
+This project includes both the **backend (Node.js + Express)** and **frontend (React + Vite)** in a single repository.
 
 ---
 
