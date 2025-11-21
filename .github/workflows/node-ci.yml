@@ -1,4 +1,4 @@
-name: Full Stack CI (Backend + Frontend)
+name: Full Stack CI + Deploy (Render)
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - feature/*
       - dev
   pull_request:
+  workflow_dispatch:
 
 jobs:
   backend:
@@ -27,10 +28,10 @@ jobs:
       - name: Install backend dependencies
         run: npm install
 
-      - name: Run backend test/build (safe fallback)
+      - name: Run backend tests (optional)
         run: |
           if [ -f package.json ]; then
-            npm run test || echo "No backend tests"
+            npm test || echo "No backend tests defined"
           fi
 
   frontend:
@@ -53,3 +54,16 @@ jobs:
 
       - name: Build React app
         run: npm run build
+
+  deploy-backend:
+    name: Deploy backend to Render
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger Render deploy
+        uses: JorgeLNJunior/render-deploy@v1.4.6
+        with:
+          service_id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          wait_deploy: true
